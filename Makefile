@@ -4,3 +4,6 @@ GO=go
 
 test:
 	$(GO) test ./...
+
+bench:
+	$(GO) test -bench=.

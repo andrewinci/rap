@@ -1,0 +1,38 @@
+kafka:
+  clusterEndpoint: exampleEndpoint
+
+producers:
+  - name: producer1
+    numberOfMessages: 1
+    avro:
+      schema: |
+            {
+              "type": "record",
+              "name": "Record",
+              "fields": [
+                  { "name": "Name", "type": "string" },
+                  { "name": "Age", "type": "int" },
+                  { "name": "SubRecord",
+                    "type": {
+                        "type": "record",
+                        "name": "SubRecord",
+                        "fields": [
+                          { "name": "Name", "type": "string" },
+                          { "name": "Age", "type": "int" },
+                          { "name": "Email", "type": "string" }
+                        ]
+                    }
+                  }
+              ]
+            }
+      generationRules: 
+        .Name: nameGen
+        .Age: ageGen
+        .SubRecord.Name: nameGen
+        .SubRecord.Age: ageGen
+        .SubRecord.Email: emailGen
+      generators:
+        nameGen: "{string}[Mary|James|Patricia|Robert]{1}"
+        emailGen: "{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}"
+        ageGen: "{int}[2|3|4|5|6]{1}[0-9]{1}"
+      
