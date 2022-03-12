@@ -2,3 +2,9 @@
 <h2 align="center">Random avro producer</h2>
 
 RAP is an Avro generator that allows to fully control the data generation via configurations and with a built in Kafka producer.
+
+## Development
+
+Use the `make` to perform common operations on this project.
+
+Run tests with `make test`
