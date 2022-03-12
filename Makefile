@@ -3,4 +3,4 @@ GO=go
 .PHONY: test
 
 test:
-	$(GO) test ./fieldgen
+	$(GO) test ./...
