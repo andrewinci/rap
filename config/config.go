@@ -7,7 +7,7 @@ import (
 )
 
 type KafkaConfig struct {
-	ClusterEndpoint string `yaml:"clusterEndpoint,omitempty"`
+	ClusterEndpoint string `yaml:"clusterEndpoint"`
 }
 
 type AvroConfig struct {
@@ -18,12 +18,12 @@ type AvroConfig struct {
 	Generators map[string]string
 	// set of rules to customize the
 	// avro generation
-	GenerationRules map[string]string `yaml:"generationRules,omitempty"`
+	GenerationRules map[string]string `yaml:"generationRules"`
 }
 
 type ProducerConfig struct {
 	Name             string
-	NumberOfMessages int `yaml:"numberOfMessages,omitempty"`
+	NumberOfMessages int `yaml:"numberOfMessages"`
 	Avro             AvroConfig
 }
 
