@@ -45,3 +45,4 @@ Run tests with `make test`
 ## TODO:
 - [ ] support union in field gen
 - [ ] support logical types in field gen
+- [ ] support split yaml file
