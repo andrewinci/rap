@@ -2,8 +2,29 @@
 <h2 align="center">Random avro producer</h2>
 
 RAP is an Avro generator that allows to fully control the data generation via configurations and with a built in Kafka producer.
+## Configuration
+Use a `.yaml` file to configure the avro generation. The format is the following:
+```yaml
+kafka:
+  clusterEndpoint: exampleEndpoint #the kafka endpoint
 
-## Field gen syntax
+producers:
+  - name: producer1 # an identifier for this producer
+    numberOfMessages: 2000  # number of messages to generate from this producer
+    avro:
+      schema: {} # the avro schema in json format
+      generationRules: # set of rules to configure the generation of specific fields
+        .Name: nameGen 
+        .SubRecord.Email: emailGen
+      generators: # map of generators that can be used in the rules 
+        nameGen: "{string}[Mary|James|Patricia|Robert]{1}"
+        emailGen: "{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}"
+        ageGen: "{int}[2|3|4|5|6]{1}[0-9]{1}"
+  - name: producer2
+...
+```
+
+## Field generation syntax
 To customize the generation of the fields it is possible to provide a pattern.
 The generic structure of a data gen pattern is:
 ```
