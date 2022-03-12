@@ -8,31 +8,31 @@ import (
 
 func TestHappypathGenerate(t *testing.T) {
 	const seed = 0
-	res, _ := NewGenerator("{string}[res1]{1}")(seed)
+	res, _ := NewFieldGenerator("{string}[res1]{1}", seed)()
 	if res != "res1" {
 		t.Fail()
 	}
-	res, _ = NewGenerator("{int}[132]{1}")(seed)
+	res, _ = NewFieldGenerator("{int}[132]{1}", seed)()
 	if res != 132 {
 		t.Fail()
 	}
-	res, _ = NewGenerator("{int}[132]{1}[231]{1}")(seed)
+	res, _ = NewFieldGenerator("{int}[132]{1}[231]{1}", seed)()
 	if res != 132231 {
 		t.Fail()
 	}
-	res, _ = NewGenerator("{string}[a-Z]{30}")(seed)
+	res, _ = NewFieldGenerator("{string}[a-Z]{30}", seed)()
 	if res != "UyizABeAsCmGcYwewHIgmAhUHCEecE" {
 		t.Fail()
 	}
-	res, _ = NewGenerator("{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}")(seed)
+	res, _ = NewFieldGenerator("{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}", seed)()
 	if res != "uyizabeasc@gcywewhigm.org" {
 		t.Fail()
 	}
-	res, _ = NewGenerator("{string}[0|1|2|3]{10}")(seed)
+	res, _ = NewFieldGenerator("{string}[0|1|2|3]{10}", seed)()
 	if res != "2133003032" {
 		t.Fail()
 	}
-	res, _ = NewGenerator("{string}[a-z|A-Z|0-9|test]{30}")(seed)
+	res, _ = NewFieldGenerator("{string}[a-z|A-Z|0-9|test]{30}", seed)()
 	if res != "4Ytesttestabtestatest4test0CytestEW3iGtestatestu782testCe" {
 		t.Fail()
 	}
@@ -44,7 +44,7 @@ func TestProbability(t *testing.T) {
 	// have the same prob to be picked
 
 	const seed = 0
-	res, _ := NewGenerator("{string}[a-z|0-9|A-Z]{100000}")(seed)
+	res, _ := NewFieldGenerator("{string}[a-z|0-9|A-Z]{100000}", seed)()
 	lower, digits, upper := 0, 0, 0
 	for _, l := range res.(string) {
 		if unicode.IsNumber(l) {
@@ -62,7 +62,7 @@ func TestProbability(t *testing.T) {
 }
 
 func TestNilIfInvalidPattern(t *testing.T) {
-	if NewGenerator("{string}[]{1}") != nil {
+	if NewFieldGenerator("{string}[]{1}", 0) != nil {
 		t.Fail()
 	}
 }

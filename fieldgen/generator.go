@@ -7,24 +7,23 @@ import (
 )
 
 // generic data generator
-type Gen func(seed int64) (interface{}, error)
+type FieldGen func() (interface{}, error)
 
-func NewGenerator(rawPattern string) Gen {
+func NewFieldGenerator(rawPattern string, seed int64) FieldGen {
 	pattern := parsePattern(rawPattern)
 	if pattern == nil {
 		return nil
 	}
-	return func(seed int64) (interface{}, error) {
-		r := rand.New(rand.NewSource(seed))
+	random := rand.New(rand.NewSource(seed))
+	return func() (interface{}, error) {
 		var res string
 		for _, c := range pattern.content {
 			for i := 0; i < c.count; i++ {
-				j := r.Intn(len(c.options))
-				k := r.Intn(len(c.options[j]))
+				j := random.Intn(len(c.options))
+				k := random.Intn(len(c.options[j]))
 				res += c.options[j][k]
 			}
 		}
-		fmt.Println(res)
 		switch pattern.type_ {
 		case avro_boolean:
 			return strconv.ParseBool(res)
