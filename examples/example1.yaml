@@ -12,7 +12,7 @@ producers:
               "fields": [
                   { "name": "Name", "type": "string" },
                   { "name": "Age", "type": "int" },
-                  { "name": "Email",
+                  { "name": "SubRecord",
                     "type": {
                         "type": "record",
                         "name": "SubRecord",
@@ -28,7 +28,6 @@ producers:
       generationRules: 
         .Name: nameGen
         .Age: ageGen
-        .Email: emailGen
         .SubRecord.Name: nameGen
         .SubRecord.Age: ageGen
         .SubRecord.Email: emailGen
