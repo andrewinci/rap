@@ -86,9 +86,7 @@ The field `count` tells the generator how many times the generation should be pe
 
 ## Development
 
-Use the `make` to perform common operations on this project.
-
-Run tests with `make test`
+Run tests with `go test ./...`
 
 ## TODO:
 - [ ] support union in field gen

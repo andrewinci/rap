@@ -1,0 +1,23 @@
+kafka:
+  clusterEndpoint: localhost:9092
+
+producers:
+  - name: test-producer
+    numberOfMessages: 2 
+    topic: test
+    avro:
+      schema: 
+        id:    
+        raw: |
+          {
+            "type": "record",
+            "name": "Record",
+            "fields": [
+                { "name": "Name", "type": "string" },
+                { "name": "Age", "type": "int" }
+            ]
+          }
+      generationRules:
+        key: keyGen
+      generators:
+        keyGen: "{string}[a-Z | 0-9]{10}"

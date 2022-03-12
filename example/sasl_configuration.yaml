@@ -1,0 +1,56 @@
+kafka:
+  clusterEndpoint: $KAFKA_ENDPOINT
+  schemaRegistry:
+    endpoint: $SR_ENDPOINT 
+    username: $SR_USER
+    password: $SR_PASSWORD
+  sasl:
+    username: $KAFKA_USERNAME 
+    password: $KAFKA_PASSWORD
+
+producers:
+  - name: test-producer
+    numberOfMessages: 2 
+    topic: test
+    avro:
+      schema: 
+        id:    
+        raw: |
+          {
+            "type": "record",
+            "name": "Record",
+            "fields": [
+                { "name": "Name", "type": "string" },
+                { "name": "Age", "type": "int" },
+                { "name": "SubRecord",
+                  "type": {
+                      "type": "record",
+                      "name": "SubRecord",
+                      "fields": [
+                        { "name": "Name", "type": "string" },
+                        { "name": "Age", "type": "int" },
+                        { "name": "Email", "type": "string" }
+                      ]
+                  }
+                }
+            ]
+          }
+      generationRules:
+        key: keyGen
+        .Name: nameGen 
+        .SubRecord.Email: emailGen
+        .SubRecord.Age: ageGen
+      generators:
+        nameGen: "{string}[Mary|James|Patricia|Robert]{1}"
+        emailGen: "{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}"
+        ageGen: "{int}[2|3|4|5|6]{1}[0-9]{1}"
+        keyGen: "{string}[a-Z | 0-9]{10}"
+  - name: test-producer-2
+    numberOfMessages: 3
+    topic: test-2
+    avro:
+        schemaName: test-2-value
+        generationRules:
+            key: keyGen
+        generators:
+            keyGen: "{string}[0-9]{10}"
