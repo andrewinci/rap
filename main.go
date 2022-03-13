@@ -40,28 +40,31 @@ func main() {
 	}
 
 	// initialize the kafka producer
-	producer, err := k.NewProducer(config.Kafka)
+
+	kafkaProducer, err := k.NewProducer(config.Kafka)
 	if err != nil {
 		log.Fatalf("unable to initialize the kafka producer: %s", err.Error())
 	}
 
 	// setup all the producers and then execute
-	producers := setupProducers(*config, *schemaRegistry, producer)
-	var wg sync.WaitGroup
+	producers := setupProducers(*config, *schemaRegistry, kafkaProducer)
+
 	start := time.Now()
+	var wg sync.WaitGroup
 	for _, p := range producers {
 		wg.Add(1)
 		go p(&wg)
 	}
 	wg.Wait()
+	log.Println("All records have been generated successfully")
+	kafkaProducer.Close()
 	log.Println("All records have been produced successfully")
 	elapsed := time.Since(start)
-	totalRecords := 0
-	for _, p := range config.Producers {
-		totalRecords += p.NumberOfMessages
-	}
-	// compute total records for reporting
-	log.Printf("Produced %d records in %s\n", totalRecords, elapsed)
+
+	log.Printf("Produced %d records, %d errors, in %s\n",
+		kafkaProducer.GetSuccessCount(),
+		kafkaProducer.GetErrorsCount(),
+		elapsed)
 
 }
 
@@ -69,7 +72,7 @@ func setupProducers(config c.Configuration, schemaRegistry registry.Client, prod
 	var producers []func(wg *sync.WaitGroup)
 	// setup random avro generators
 	seed := time.Now().UnixMilli() //todo: add to the arguments
-	log.Printf("initializing the avro-generators with seed: %d", seed)
+	log.Printf("Initializing the avro-generators with seed: %d", seed)
 
 	for _, p := range config.Producers {
 		gen, err := ag.NewAvroGen(p.Avro, seed)
@@ -87,10 +90,7 @@ func setupProducers(config c.Configuration, schemaRegistry registry.Client, prod
 				if err != nil {
 					log.Fatalf("unable to generate record")
 				}
-				err = producer.Produce(key, msg, topicName) //todo: the key!
-				if err != nil {
-					log.Fatalf(err.Error())
-				}
+				producer.ProduceAsync(key, msg, topicName)
 			}
 			log.Printf("Producer %s completed. %d records has been produced", producerName, count)
 		})
