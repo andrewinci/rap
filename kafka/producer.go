@@ -1,6 +1,9 @@
 package kafka
 
-import "github.com/Shopify/sarama"
+import (
+	"github.com/Shopify/sarama"
+	c "github.com/andrewinci/rap/configuration"
+)
 
 type syncProducer struct {
 	producer sarama.SyncProducer
@@ -10,45 +13,26 @@ type Producer interface {
 	Produce(key string, value []byte, topicName string) error
 }
 
-type Security int
-
-const (
-	None Security = iota
-	Sasl
-	mTLS //todo
-)
-
-type SaslConfiguration struct {
-	User     string
-	Password string
-}
-
-type KafkaConfiguration struct {
-	Endpoint string
-	Security Security
-	Sasl     SaslConfiguration
-}
-
-func NewProducer(config KafkaConfiguration) (Producer, error) {
+func NewProducer(config c.KafkaConfiguration) (Producer, error) {
 	conf := sarama.NewConfig()
 	conf.Producer.Return.Successes = true
 	switch config.Security {
-	case None:
-	case Sasl:
+	case c.None:
+	case c.Sasl:
 		configureSasl(config.Sasl, conf)
-	case mTLS:
+	case c.MTLS:
 	}
-	producer, err := sarama.NewSyncProducer([]string{config.Endpoint}, conf)
+	producer, err := sarama.NewSyncProducer([]string{config.ClusterEndpoint}, conf)
 	if err != nil {
 		return nil, err
 	}
 	return syncProducer{producer: producer}, nil
 }
 
-func configureSasl(config SaslConfiguration, saramaConfig *sarama.Config) {
+func configureSasl(config c.SaslConfiguration, saramaConfig *sarama.Config) {
 	saramaConfig.Net.SASL.Enable = true
 	saramaConfig.Net.SASL.Mechanism = sarama.SASLTypePlaintext
-	saramaConfig.Net.SASL.User = config.User
+	saramaConfig.Net.SASL.User = config.Username
 	saramaConfig.Net.SASL.Password = config.Password
 	saramaConfig.Net.SASL.Handshake = true
 	saramaConfig.Net.SASL.Enable = true

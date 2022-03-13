@@ -2,6 +2,8 @@ package avrogen
 
 import (
 	"testing"
+
+	"github.com/andrewinci/rap/configuration"
 )
 
 func TestHappyPathAvroGen(t *testing.T) {
@@ -19,7 +21,11 @@ func TestHappyPathAvroGen(t *testing.T) {
 		]
 	 }
 	`
-	sut, err := NewAvroGen(AvroGenConfiguration{Schema: testSchema}, 0)
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		}}, 0)
 	if err != nil {
 		t.FailNow()
 	}
@@ -51,8 +57,11 @@ func TestHappyPath2AvroGen(t *testing.T) {
 		]
 	 }
 	`
-	sut, err := NewAvroGen(AvroGenConfiguration{
-		Schema: testSchema,
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		},
 		GenerationRules: map[string]string{
 			"boolean": "booleanGen",
 			"int":     "intGen",

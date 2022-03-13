@@ -58,7 +58,7 @@ func TestValidateConfiguration_Schema(t *testing.T) {
 			ClusterEndpoint: "endpoint",
 		},
 		Producers: []ProducerConfiguration{
-			{Avro: AvroConfig{SchemaName: "test-schema"}},
+			{Avro: AvroGenConfiguration{SchemaName: "test-schema"}},
 		}}
 	res := validateConfiguration(&c)
 	if res == nil {
@@ -70,7 +70,7 @@ func TestValidateConfiguration_Schema(t *testing.T) {
 func TestValidateConfiguration_KafkaEndpoint(t *testing.T) {
 	c := Configuration{
 		Producers: []ProducerConfiguration{
-			{Avro: AvroConfig{Schema: SchemaConfiguration{Id: 1, Raw: ""}}}}}
+			{Avro: AvroGenConfiguration{Schema: SchemaConfiguration{Id: 1, Raw: ""}}}}}
 	res := validateConfiguration(&c)
 	if res == nil {
 		// validation should fail because the kafka endpoint is not defined
@@ -78,7 +78,7 @@ func TestValidateConfiguration_KafkaEndpoint(t *testing.T) {
 	}
 }
 
-func TestValidateConfiguration_EnmptyProducers(t *testing.T) {
+func TestValidateConfiguration_EmptyProducers(t *testing.T) {
 	c := Configuration{
 		Kafka: KafkaConfiguration{
 			ClusterEndpoint: "endpoint",

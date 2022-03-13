@@ -15,13 +15,23 @@ type Configuration struct {
 type KafkaConfiguration struct {
 	ClusterEndpoint string                      `yaml:"clusterEndpoint"`
 	SchemaRegistry  SchemaRegistryConfiguration `yaml:"schemaRegistry"`
-	Sasl            SaslConfiguration           `yaml:"sasl"`
+	Security        Security
+	Sasl            SaslConfiguration `yaml:"sasl"`
 }
+
+type Security string
+
+const (
+	None Security = "none"
+	Sasl Security = "sasl"
+	MTLS Security = "mtls"
+)
 
 type ProducerConfiguration struct {
 	Name             string
 	NumberOfMessages int `yaml:"numberOfMessages"`
-	Avro             AvroConfig
+	Avro             AvroGenConfiguration
+	Topic            string `yaml:"topic"`
 }
 
 type SchemaRegistryConfiguration struct {
@@ -36,15 +46,15 @@ type SaslConfiguration struct {
 }
 
 type SchemaConfiguration struct {
-	Id  int64
+	Id  int
 	Raw string
 }
 
-type AvroConfig struct {
+type AvroGenConfiguration struct {
 	// raw avro schema
 	Schema SchemaConfiguration
 	// schema name only works if the schema registry is configured
-	SchemaName string
+	SchemaName string `yaml:"schemaName"`
 	// list of generators available
 	// in the rules
 	Generators map[string]string
@@ -96,9 +106,15 @@ func validateConfiguration(config *Configuration) error {
 	if config.Kafka.ClusterEndpoint == "" {
 		return fmt.Errorf("validation error: an endpoint for kafka need to be configured in order to produce records")
 	}
+	// validate non empty producers
 	if len(config.Producers) == 0 {
 		return fmt.Errorf("validation error: at least one producer must be specified")
 	}
+	// validate security
+	if config.Kafka.Security != Sasl && config.Kafka.Security != None {
+		return fmt.Errorf("validation error: security setting `%s` not supported.", config.Kafka.Security)
+	}
+
 	schemaRegistryConfigured := config.Kafka.SchemaRegistry.Endpoint != ""
 	if schemaRegistryConfigured {
 		return nil

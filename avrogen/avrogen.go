@@ -3,17 +3,13 @@ package avrogen
 import (
 	"fmt"
 
+	c "github.com/andrewinci/rap/configuration"
 	"github.com/hamba/avro"
 )
 
-type AvroGenConfiguration struct {
-	Schema          string
-	Generators      map[string]string
-	GenerationRules map[string]string
-}
-
 type avroGen struct {
 	schema          avro.Schema
+	schemaId        int
 	generatorsCache map[string]func() (interface{}, error)
 }
 
@@ -23,9 +19,9 @@ type AvroGen interface {
 	generateRecord(schema *avro.RecordSchema, parentSchema string) (map[string]interface{}, error)
 }
 
-func NewAvroGen(config AvroGenConfiguration, seed int64) (AvroGen, error) {
+func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
 	// parse avro schema
-	schema, err := avro.Parse(config.Schema)
+	schema, err := avro.Parse(config.Schema.Raw)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +55,7 @@ func NewAvroGen(config AvroGenConfiguration, seed int64) (AvroGen, error) {
 
 	return avroGen{
 		schema:          schema,
+		schemaId:        config.Schema.Id,
 		generatorsCache: generatorsCache,
 	}, nil
 }
@@ -68,6 +65,7 @@ func (g avroGen) Generate() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	//todo: pre-pend schema id
 	return avro.Marshal(g.schema, generated)
 }
 

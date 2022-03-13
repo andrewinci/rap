@@ -7,6 +7,7 @@ Use a `.yaml` file to configure the avro generation. The format is the following
 ```yaml
 kafka:
   clusterEndpoint: exampleEndpoint # the kafka endpoint (can also be passed with an env variable like $KAFKA_ENDPOINT)
+  security: sasl #one of: none, sasl, mtls is expected here
   # the schema registry is optional and only required if schemaName is used in a producer
   schemaRegistry:
     # the schema registry endpoint (can also be passed with an env variable like $SR_ENDPOINT)
