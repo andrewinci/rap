@@ -15,7 +15,8 @@ type avroGen struct {
 }
 
 type AvroGen interface {
-	Generate() ([]byte, error)
+	// return the avro record value and the key
+	Generate() ([]byte, string, error)
 	generate(schema avro.Schema, fieldPath string) (interface{}, error)
 	generateRecord(schema *avro.RecordSchema, parentSchema string) (map[string]interface{}, error)
 }
@@ -28,6 +29,7 @@ func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
 	}
 
 	generatorsCache := map[string]func() (interface{}, error){
+		"key":                defaultKeyGen(seed),
 		string(avro.Boolean): defaultBooleanFieldGen(seed),
 		string(avro.Int):     defaultIntFieldGen(seed),
 		string(avro.Long):    defaultLongFieldGen(seed),
@@ -61,20 +63,24 @@ func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
 	}, nil
 }
 
-func (g avroGen) Generate() ([]byte, error) {
+func (g avroGen) Generate() ([]byte, string, error) {
 	generated, err := g.generate(g.schema, "")
 	if err != nil {
-		return nil, err
+		return nil, "", err
+	}
+	key, err := g.generatorsCache["key"]()
+	if err != nil {
+		return nil, "", fmt.Errorf("unable to generate the key, %s", err.Error())
 	}
 	raw, err := avro.Marshal(g.schema, generated)
-	if err == nil {
-		bs := make([]byte, 4)
-		binary.BigEndian.PutUint32(bs, uint32(g.schemaId))
-		msg := append([]byte{0x00}, bs...)
-		msg = append(msg, raw...)
-		return msg, err
+	if err != nil {
+		return nil, "", fmt.Errorf("unable to marshal the record, %s", err.Error())
 	}
-	return nil, err
+	bs := make([]byte, 4)
+	binary.BigEndian.PutUint32(bs, uint32(g.schemaId))
+	msg := append([]byte{0x00}, bs...)
+	msg = append(msg, raw...)
+	return msg, key.(string), err
 }
 
 func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, error) {

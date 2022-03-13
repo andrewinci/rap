@@ -53,6 +53,7 @@ func newFieldGen(rawPattern string, seed int64) fieldGen {
 	}
 }
 
+func defaultKeyGen(seed int64) fieldGen         { return newFieldGen("{string}[uuid()]{1}", seed) }
 func defaultIntFieldGen(seed int64) fieldGen    { return newFieldGen("{int}[0-9]{4}", seed) }
 func defaultLongFieldGen(seed int64) fieldGen   { return newFieldGen("{long}[0-9]{7}", seed) }
 func defaultStringFieldGen(seed int64) fieldGen { return newFieldGen("{string}[a-Z|0-9]{10}", seed) }

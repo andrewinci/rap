@@ -82,8 +82,8 @@ func TestHappyPath2AvroGen(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	res1, _ := sut.Generate()
-	res2, _ := sut.Generate()
+	res1, _, _ := sut.Generate()
+	res2, _, _ := sut.Generate()
 	if string(res1) != string(res2) {
 		t.Error("the records should be identical")
 	}

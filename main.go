@@ -83,11 +83,11 @@ func setupProducers(config c.Configuration, schemaRegistry registry.Client, prod
 			defer wg.Done()
 			log.Printf("Producer %s started", producerName)
 			for i := 0; i < count; i++ {
-				msg, err := gen.Generate()
+				msg, key, err := gen.Generate()
 				if err != nil {
 					log.Fatalf("unable to generate record")
 				}
-				err = producer.Produce("<key>", msg, topicName) //todo: the key!
+				err = producer.Produce(key, msg, topicName) //todo: the key!
 				if err != nil {
 					log.Fatalf(err.Error())
 				}
