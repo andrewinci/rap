@@ -47,7 +47,7 @@ func main() {
 	}
 
 	// setup all the producers and then execute
-	producers := setupProducers(*config, *schemaRegistry, kafkaProducer)
+	producers := setupProducers(*config, schemaRegistry, kafkaProducer)
 
 	start := time.Now()
 	var wg sync.WaitGroup
@@ -68,7 +68,7 @@ func main() {
 
 }
 
-func setupProducers(config c.Configuration, schemaRegistry registry.Client, producer k.Producer) []func(wg *sync.WaitGroup) {
+func setupProducers(config c.Configuration, schemaRegistry *registry.Client, producer k.Producer) []func(wg *sync.WaitGroup) {
 	var producers []func(wg *sync.WaitGroup)
 	// setup random avro generators
 	seed := time.Now().UnixMilli() //todo: add to the arguments

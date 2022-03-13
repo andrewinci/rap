@@ -39,6 +39,8 @@ func NewProducer(config c.KafkaConfiguration) (Producer, error) {
 	res := asyncProducer{
 		producer: producer,
 		wg:       &wg,
+		success:  0,
+		errors:   0,
 	}
 	// drain success
 	wg.Add(1)
@@ -59,7 +61,7 @@ func NewProducer(config c.KafkaConfiguration) (Producer, error) {
 		}
 	}()
 
-	return res, nil
+	return &res, nil
 }
 
 func configureSasl(config c.SaslConfiguration, saramaConfig *sarama.Config) {
