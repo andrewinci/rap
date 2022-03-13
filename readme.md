@@ -1,7 +1,13 @@
 <h1 align="center">RAP</h2>
-<h2 align="center">Random avro producer</h2>
+<h3 align="center">The random avro producer</h3>
 
-RAP is a fast Avro generator + Kafka producer that allows to fully control the data generation via a simple yaml configurations.
+<p align="center">
+<a href="https://github.com/andrewinci/rap/actions"><img alt="CI" src="https://github.com/andrewinci/rap/actions/workflows/go.yml/badge.svg"></a>
+<a href="https://github.com/rap/license/blob/main/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
+</p>
+
+
+RAP is a fast Avro generator + Kafka producer that allows to fully control the data generation via a simple yaml configuration.
 
 ## Getting started
 
