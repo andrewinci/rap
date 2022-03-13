@@ -1,8 +1,9 @@
 kafka:
   clusterEndpoint: $KAFKA_ENDPOINT
+  security: sasl
   schemaRegistry:
     endpoint: $SR_ENDPOINT 
-    username: $SR_USER
+    username: $SR_USERNAME
     password: $SR_PASSWORD
   sasl:
     username: $KAFKA_USERNAME 
@@ -14,7 +15,7 @@ producers:
     topic: test
     avro:
       schema: 
-        id:    
+        id: 10031
         raw: |
           {
             "type": "record",
