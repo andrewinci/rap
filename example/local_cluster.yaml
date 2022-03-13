@@ -4,11 +4,11 @@ kafka:
 
 producers:
   - name: test-producer
-    numberOfMessages: 2 
+    numberOfMessages: 2000000
     topic: test
     avro:
       schema: 
-        id:    
+        id: 321
         raw: |
           {
             "type": "record",
@@ -20,5 +20,7 @@ producers:
           }
       generationRules:
         key: keyGen
+        .Name: nameGen
       generators:
         keyGen: "{string}[a-Z | 0-9]{10}"
+        nameGen: "{string}[Mary|James|Patricia|Robert]{1}"

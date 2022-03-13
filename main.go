@@ -56,16 +56,13 @@ func main() {
 		go p(&wg)
 	}
 	wg.Wait()
-	log.Println("All records have been generated successfully")
 	kafkaProducer.Close()
-	log.Println("All records have been produced successfully")
-	elapsed := time.Since(start)
 
+	elapsed := time.Since(start)
 	log.Printf("Produced %d records, %d errors, in %s\n",
 		kafkaProducer.GetSuccessCount(),
 		kafkaProducer.GetErrorsCount(),
 		elapsed)
-
 }
 
 func setupProducers(config c.Configuration, schemaRegistry *registry.Client, producer k.Producer) []func(wg *sync.WaitGroup) {
