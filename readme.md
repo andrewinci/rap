@@ -63,26 +63,27 @@ Where `type` can be one of the following avro type:
 `content-restriction` can be:
 - an interval: `a-z`, `A-Z`, `a-Z`, `0-9`
 - a constant value: `testvalue`
+- a function: `uuid()`, `timestamp_ms()`
 - a combination of intervals and constants: `a-z | 0-9 | test`
 
 The field `count` tells the generator how many times the generation should be performed accordingly to the `content-restriction`. The result of each generation is concatenated.
 
 ### Examples
 
-**Generate a constant value**
-
+**Generate a constant value**  
 `{string}[test]{1}`: will always generate the constant value test
 
-**Generate alphanumeric string**
-
+**Generate alphanumeric string**  
 `{string}[a-Z|0-9]{10}`: will generate a random alphanumeric string of length 10
 
-**Generate a random email**
-
+**Generate a random email**  
 `{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}`
 
-**Generate a random number**
+**Generate a random number**  
 `{int}[0-9]{5}`: will generate a random number of 5 digits.
+
+**Generate a random v4 uuid**  
+`{string}[uuid()]{1}`
 
 ## Development
 
