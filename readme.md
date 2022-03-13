@@ -1,7 +1,7 @@
 <h1 align="center">RAP</h2>
 <h2 align="center">Random avro producer</h2>
 
-RAP is an Avro generator that allows to fully control the data generation via configurations and with a built in Kafka producer.
+RAP is a fast Avro generator + Kafka producer that allows to fully control the data generation via a simple yaml configurations.
 
 ## Getting started
 
@@ -32,7 +32,7 @@ The quickest way to try RAP is to run it against a local single node Kafka clust
   ```
 
 ## Configuration
-Use a `.yaml` file to configure the avro generation. The format is the following:
+Use a `.yaml` file to configure the avro generation. Here an example config file with all the options:
 ```yaml
 kafka:
   clusterEndpoint: exampleEndpoint # the kafka endpoint (can also be passed with an env variable like $KAFKA_ENDPOINT)
@@ -91,9 +91,9 @@ Where `type` can be one of the following avro type:
 `boolean` `int` `long` `float` `double` `bytes` `string`
 
 `content-restriction` can be:
-- an interval: `a-z`, `A-Z`, `a-Z`, `0-9`
+- an interval: `a-z` `A-Z` `a-Z` `0-9`
 - a constant value: `testvalue`
-- a function: `uuid()`, `timestamp_ms()`
+- a function: `uuid()` `timestamp_ms()`
 - a combination of intervals and constants: `a-z | 0-9 | test`
 
 The field `count` tells the generator how many times the generation should be performed accordingly to the `content-restriction`. The result of each generation is concatenated.
@@ -101,16 +101,16 @@ The field `count` tells the generator how many times the generation should be pe
 ### Examples
 
 **Generate a constant value**  
-`{string}[test]{1}`: will always generate the constant value test
+`{string}[test]{1}` will always generate the constant value test
 
 **Generate alphanumeric string**  
-`{string}[a-Z|0-9]{10}`: will generate a random alphanumeric string of length 10
+`{string}[a-Z|0-9]{10}` will generate a random alphanumeric string of length 10
 
 **Generate a random email**  
 `{string}[a-z]{10}[@]{1}[a-z]{10}[.org|.com]{1}`
 
 **Generate a random number**  
-`{int}[0-9]{5}`: will generate a random number of 5 digits.
+`{int}[0-9]{5}` will generate a random number of 5 digits.
 
 **Generate a random v4 uuid**  
 `{string}[uuid()]{1}`
