@@ -12,10 +12,16 @@ RAP is a fast Avro generator + Kafka producer that allows to fully control the d
 ## Getting started
 
 The quickest way to try RAP is to run it against a local single node Kafka cluster.
-
+- Download the latest release of RAP and the example config file
+  ```bash
+  RAP_VERSION=0.0.1 bash -c 'curl -Lo rap_${RAP_VERSION}.tar.gz \
+  https://github.com/andrewinci/rap/releases/download/v${RAP_VERSION}/rap_${RAP_VERSION}_$(uname)_$(uname -m).tar.gz && \
+  tar xvf rap_${RAP_VERSION}.tar.gz'
+  curl -o config.yaml https://raw.githubusercontent.com/andrewinci/rap/main/example/local_cluster.yaml
+  ```
 - Start a local cluster with the RedPanda image
   ```bash
-  docker run -d --pull=always --name=redpanda-1 --rm \                               
+  docker run -d --pull=always --name=redpanda-1 --rm \
   -p 9092:9092 \
   -p 9644:9644 \
   docker.vectorized.io/vectorized/redpanda:latest \
@@ -30,12 +36,13 @@ The quickest way to try RAP is to run it against a local single node Kafka clust
 - Create the test topic with
   ```bash
   docker exec -it redpanda-1 \
-  rpk topic create twitch_chat --brokers=localhost:9092
+  rpk topic create test --brokers=localhost:9092
   ```
 - Generate 2M records with RAP
   ```bash
-  go run . example/local_cluster.yaml
+  ./rap config.yaml
   ```
+- (optional) Verify the content of the topic with [Insulator](https://github.com/andrewinci/Insulator/blob/master/Readme.md)
 
 ## Configuration
 Use a `.yaml` file to configure the avro generation. Here an example config file with all the options:
@@ -135,3 +142,4 @@ Run tests with `go test ./...`
 - [ ] support arrays
 - [ ] support mtls authentication
 - [ ] support split yaml file
+- [ ] docker image and helm chart
