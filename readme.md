@@ -2,6 +2,35 @@
 <h2 align="center">Random avro producer</h2>
 
 RAP is an Avro generator that allows to fully control the data generation via configurations and with a built in Kafka producer.
+
+## Getting started
+
+The quickest way to try RAP is to run it against a local single node Kafka cluster.
+
+- Start a local cluster with the RedPanda image
+  ```bash
+  docker run -d --pull=always --name=redpanda-1 --rm \                               
+  -p 9092:9092 \
+  -p 9644:9644 \
+  docker.vectorized.io/vectorized/redpanda:latest \
+  redpanda start \
+  --overprovisioned \
+  --smp 1  \
+  --memory 1G \
+  --reserve-memory 0M \
+  --node-id 0 \
+  --check=false
+  ```
+- Create the test topic with
+  ```bash
+  docker exec -it redpanda-1 \
+  rpk topic create twitch_chat --brokers=localhost:9092
+  ```
+- Generate 2M records with RAP
+  ```bash
+  go run . example/local_cluster.yaml
+  ```
+
 ## Configuration
 Use a `.yaml` file to configure the avro generation. The format is the following:
 ```yaml
@@ -90,7 +119,13 @@ The field `count` tells the generator how many times the generation should be pe
 
 Run tests with `go test ./...`
 
+## Credits
+
+- https://docs.redpanda.com/docs/quickstart/quick-start-docker/
+
 ## TODO:
 - [ ] support union in field gen
 - [ ] support logical types in field gen
+- [ ] support arrays
+- [ ] support mtls authentication
 - [ ] support split yaml file
