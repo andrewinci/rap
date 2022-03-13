@@ -1,5 +1,6 @@
 kafka:
   clusterEndpoint: localhost:9092
+  security: none
 
 producers:
   - name: test-producer

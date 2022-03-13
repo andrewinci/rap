@@ -29,16 +29,19 @@ func TestHappyPathAvroGen(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	res1, err := sut.Generate()
+	res1, key1, err := sut.Generate()
 	if err != nil {
 		t.FailNow()
 	}
-	res2, err := sut.Generate()
+	res2, key2, err := sut.Generate()
 	if err != nil {
 		t.FailNow()
 	}
 	if string(res1) == string(res2) {
 		t.Error("generated 2 identical records")
+	}
+	if string(key1) == string(key2) {
+		t.Error("generated 2 identical keys")
 	}
 }
 
@@ -69,6 +72,7 @@ func TestHappyPath2AvroGen(t *testing.T) {
 			"float":   "floatGen",
 			"double":  "doubleGen",
 			"string":  "stringGen",
+			"key":     "keyGen",
 		},
 		// all generators are constants
 		Generators: map[string]string{
@@ -78,13 +82,17 @@ func TestHappyPath2AvroGen(t *testing.T) {
 			"floatGen":   "{float}[12.12]{1}",
 			"doubleGen":  "{double}[123.321]{1}",
 			"stringGen":  "{string}[stringValue]{1}",
+			"keyGen":     "{string}[fixed-key]{1}",
 		}}, 0)
 	if err != nil {
 		t.FailNow()
 	}
-	res1, _, _ := sut.Generate()
-	res2, _, _ := sut.Generate()
+	res1, key1, _ := sut.Generate()
+	res2, key2, _ := sut.Generate()
 	if string(res1) != string(res2) {
 		t.Error("the records should be identical")
+	}
+	if key1 != key2 {
+		t.Error("the record keys should be identical")
 	}
 }

@@ -20,7 +20,7 @@ func TestLoadConfigHappyPath(t *testing.T) {
 	if res.Kafka.Sasl.Username != testUsername {
 		t.Fail()
 	}
-	if res.Producers[0].NumberOfMessages != 2 {
+	if res.Producers[0].NumberOfMessages < 2 {
 		t.Fail()
 	}
 }
@@ -33,7 +33,7 @@ func TestLoadConfigHappyPath2(t *testing.T) {
 	if res.Kafka.ClusterEndpoint != "localhost:9092" {
 		t.Fail()
 	}
-	if res.Producers[0].NumberOfMessages != 2 {
+	if res.Producers[0].NumberOfMessages < 2 {
 		t.Fail()
 	}
 }
