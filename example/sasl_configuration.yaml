@@ -11,11 +11,11 @@ kafka:
 
 producers:
   - name: test-producer
-    numberOfMessages: 2 
+    numberOfMessages: 2000
     topic: test
     avro:
       schema: 
-        id: 10031
+        id: 100032
         raw: |
           {
             "type": "record",
@@ -47,7 +47,7 @@ producers:
         ageGen: "{int}[2|3|4|5|6]{1}[0-9]{1}"
         keyGen: "{string}[a-Z | 0-9]{10}"
   - name: test-producer-2
-    numberOfMessages: 3
+    numberOfMessages: 3000
     topic: test-2
     avro:
         schemaName: test-2-value

@@ -112,7 +112,7 @@ func validateConfiguration(config *Configuration) error {
 	}
 	// validate security
 	if config.Kafka.Security != Sasl && config.Kafka.Security != None {
-		return fmt.Errorf("validation error: security setting `%s` not supported.", config.Kafka.Security)
+		return fmt.Errorf("validation error: security setting `%s` not supported", config.Kafka.Security)
 	}
 
 	schemaRegistryConfigured := config.Kafka.SchemaRegistry.Endpoint != ""

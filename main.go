@@ -48,12 +48,21 @@ func main() {
 	// setup all the producers and then execute
 	producers := setupProducers(*config, *schemaRegistry, producer)
 	var wg sync.WaitGroup
+	start := time.Now()
 	for _, p := range producers {
 		wg.Add(1)
 		go p(&wg)
 	}
 	wg.Wait()
 	log.Println("All records have been produced successfully")
+	elapsed := time.Since(start)
+	totalRecords := 0
+	for _, p := range config.Producers {
+		totalRecords += p.NumberOfMessages
+	}
+	// compute total records for reporting
+	log.Printf("Produced %d records in %s\n", totalRecords, elapsed)
+
 }
 
 func setupProducers(config c.Configuration, schemaRegistry registry.Client, producer k.Producer) []func(wg *sync.WaitGroup) {

@@ -1,6 +1,7 @@
 package avrogen
 
 import (
+	"encoding/binary"
 	"fmt"
 
 	c "github.com/andrewinci/rap/configuration"
@@ -65,8 +66,15 @@ func (g avroGen) Generate() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	//todo: pre-pend schema id
-	return avro.Marshal(g.schema, generated)
+	raw, err := avro.Marshal(g.schema, generated)
+	if err == nil {
+		bs := make([]byte, 4)
+		binary.BigEndian.PutUint32(bs, uint32(g.schemaId))
+		msg := append([]byte{0x00}, bs...)
+		msg = append(msg, raw...)
+		return msg, err
+	}
+	return nil, err
 }
 
 func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, error) {
