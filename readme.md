@@ -14,7 +14,7 @@ RAP is a fast Avro generator + Kafka producer that allows to fully control the d
 The quickest way to try RAP is to run it against a local single node Kafka cluster.
 - Download the latest release of RAP and the example config file
   ```bash
-  RAP_VERSION=0.0.1 bash -c 'curl -Lo rap_${RAP_VERSION}.tar.gz \
+  RAP_VERSION=0.1.0 bash -c 'curl -Lo rap_${RAP_VERSION}.tar.gz \
   https://github.com/andrewinci/rap/releases/download/v${RAP_VERSION}/rap_${RAP_VERSION}_$(uname)_$(uname -m).tar.gz && \
   tar xvf rap_${RAP_VERSION}.tar.gz'
   curl -o config.yaml https://raw.githubusercontent.com/andrewinci/rap/main/example/local_cluster.yaml
@@ -93,7 +93,46 @@ producers:
 ```
 **NOTE:** Only the Kafka configurations can be passed via env variables
  
-## Field generation syntax
+### Generation rules
+The generation rules describe how a specific field needs to be generated.
+The **key** of the yaml map identify what schema entity we need to target for the generation while the **value** is the generator to use.
+
+The **key** can be:
+- a path to a field of the schema
+- an avro type: `boolean` `int` `long` `float` `double` `bytes` `string`
+- the value `key` to specify how to generate the key of the Kafka record
+
+The priority of the generators is:
+- field specific generator from config
+- type specific generator from config
+- default type generator
+
+#### Schema field path
+
+For example, `.f1.f2` identify the field `f2` nested in the record at field `f1` which is part of the root record.
+
+To describe a path through an **avro union type**, it is necessary to specify which type of the Union we want to follow.
+
+For example, in the following schema the path to `f2` is `.f1.Nested.f2`.
+This path also tell to the avroGen to always pick the `Nested` side of the Union, therefore `f1` will never be 
+set as a string value.
+```json
+{
+		"type": "record",
+		"fields": [
+			{
+				"name": "f1",
+				"type": [
+					"string",
+					{
+						"type": "record",
+						"name": "Nested",
+						"fields": [
+							{ "name": "f2", "type": "int"}
+						...
+```
+
+### Generators syntax
 To customize the generation of the fields it is possible to provide a pattern.
 The generic structure of a data gen pattern is:
 ```
