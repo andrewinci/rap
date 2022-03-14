@@ -39,6 +39,7 @@ func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
 		string(avro.Float):   defaultFloatFieldGen(randomSource),
 		string(avro.Double):  defaultDoubleFieldGen(randomSource),
 		string(avro.String):  defaultStringFieldGen(randomSource),
+		string(avro.Null):    defaultNullFieldGen(),
 	}
 
 	fieldGenerators := map[string]fieldGen{}
@@ -125,7 +126,6 @@ func (g avroGen) generateRecord(schema *avro.RecordSchema, parentSchema string) 
 
 func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) (interface{}, error) {
 	// pick a random type among the union options
-	schema.Types()
-	//todo
-	return nil, fmt.Errorf("no generator found for type %s, path %s", string(schema.Type()), fieldPath)
+	tIndex := g.randomSource.Intn(len(schema.Types()))
+	return g.generate(schema.Types()[tIndex], fieldPath)
 }

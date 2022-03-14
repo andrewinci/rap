@@ -67,3 +67,4 @@ func defaultDoubleFieldGen(random *rand.Rand) fieldGen {
 func defaultBooleanFieldGen(random *rand.Rand) fieldGen {
 	return newFieldGen("{boolean}[true|false]{1}", random)
 }
+func defaultNullFieldGen() fieldGen { return func() (interface{}, error) { return nil, nil } }

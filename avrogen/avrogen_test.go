@@ -17,7 +17,8 @@ func TestHappyPathAvroGen(t *testing.T) {
 			{ "name": "longField", "type": "long" },
 			{ "name": "floatField", "type": "float" },
 			{ "name": "doubleField", "type": "double" },
-			{ "name": "stringField", "type": "string" }
+			{ "name": "stringField", "type": "string" },
+			{ "name": "nullField", "type": "null" }
 		]
 	 }
 	`
@@ -97,28 +98,117 @@ func TestHappyPath2AvroGen(t *testing.T) {
 	}
 }
 
-// func TestHappyAvroGen(t *testing.T) {
-// 	testSchema := `
-// 	{
-// 		"type" : "record",
-// 		"name" : "Example",
-// 		"fields" : [
-// 			{ "name": "testField", "type": ["boolean", "null"] }
-// 		]
-// 	 }
-// 	`
-// 	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
-// 		Schema: configuration.SchemaConfiguration{
-// 			Raw: testSchema,
-// 			Id:  1,
-// 		}}, 0)
-// 	if err != nil {
-// 		t.FailNow()
-// 	}
-// 	rawRes, err := sut.generate(sut.getSchema(), "")
-// 	if err != nil {
-// 		t.FailNow()
-// 	}
-// 	res := rawRes.(map[string]interface{})
-// 	fmt.Println(res)
-// }
+func TestHappyAvroGenUnion(t *testing.T) {
+	testSchema := `
+	{
+		"type" : "record",
+		"name" : "Example",
+		"fields" : [
+			{ "name": "testField", "type": ["boolean", "null"] }
+		]
+	 }
+	`
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		}}, 0)
+	if err != nil {
+		t.FailNow()
+	}
+	rawRes, err := sut.generate(sut.getSchema(), "")
+	if err != nil {
+		t.FailNow()
+	}
+	res := rawRes.(map[string]interface{})["testField"]
+	if res != true {
+		t.FailNow()
+	}
+}
+
+func TestHappyAvroGenUnion2(t *testing.T) {
+	testSchema := `
+	{
+		"type": "record",
+		"name": "Example",
+		"fields": [
+			{
+				"name": "testField",
+				"type": [
+					"string",
+					{
+						"type": "record",
+						"name": "Nested",
+						"fields": [
+							{
+								"name": "testNestedField",
+								"type": ["int", "float"]
+							}
+						]
+					}
+				]
+			}
+		]
+	}`
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		},
+		GenerationRules: map[string]string{
+			".testField": "stringGen",
+		},
+		// all generators are constants
+		Generators: map[string]string{
+			"stringGen": "{string}[12test34]{1}",
+		}}, 0)
+	if err != nil {
+		t.FailNow()
+	}
+
+	res, err := sut.generate(sut.getSchema(), "")
+	if err != nil {
+		t.FailNow()
+	}
+	if res.(map[string]interface{})["testField"] != "12test34" {
+		t.FailNow()
+	}
+}
+
+func TestHappyAvroGenUnion3(t *testing.T) {
+	testSchema := `
+	{
+		"type": "record",
+		"name": "Example",
+		"fields": [
+			{
+				"name": "testField",
+				"type": [
+					"boolean",
+					{
+						"type": "record",
+						"name": "Nested",
+						"fields": [
+							{
+								"name": "testNestedField",
+								"type": ["int", "float"]
+							}
+						]
+					}
+				]
+			}
+		]
+	}`
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		}}, 1)
+	if err != nil {
+		t.FailNow()
+	}
+	_, err = sut.generate(sut.getSchema(), "")
+	if err != nil {
+		t.FailNow()
+	}
+}

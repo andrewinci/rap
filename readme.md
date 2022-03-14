@@ -136,7 +136,6 @@ Run tests with `go test ./...`
 - https://docs.redpanda.com/docs/quickstart/quick-start-docker/
 
 ## TODO:
-- [ ] support union in field gen
 - [ ] support logical types in field gen
 - [ ] support arrays
 - [ ] support mtls authentication

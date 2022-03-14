@@ -15,7 +15,8 @@ producers:
             "name": "Record",
             "fields": [
                 { "name": "Name", "type": "string" },
-                { "name": "Age", "type": "int" }
+                { "name": "Age", "type": "int" },
+                { "name": "Union", "type": ["int", "null"] }
             ]
           }
       generationRules:
