@@ -156,7 +156,7 @@ func TestHappyAvroGenUnion2(t *testing.T) {
 			Id:  1,
 		},
 		GenerationRules: map[string]string{
-			".testField.testNestedField": "intGen",
+			".testField.Nested.testNestedField": "intGen",
 		},
 		// all generators are constants
 		Generators: map[string]string{
@@ -170,7 +170,7 @@ func TestHappyAvroGenUnion2(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	if res.(map[string]interface{})["testField"].(map[string]interface{})["testNestedField"] != "45678923" {
+	if res.(map[string]interface{})["testField"].(map[string]interface{})["testNestedField"] != 45678923 {
 		t.FailNow()
 	}
 }

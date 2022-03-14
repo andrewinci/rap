@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math/rand"
+	"strings"
 
 	c "github.com/andrewinci/rap/configuration"
 	"github.com/hamba/avro"
@@ -130,7 +131,26 @@ func (g avroGen) generateRecord(schema *avro.RecordSchema, parentSchema string) 
 
 func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) (interface{}, error) {
 	// pick a random type among the union options
-	tIndex := g.randomSource.Intn(len(schema.Types()))
+	unionValue := ""
+	for k := range g.generatorsRepo {
+		if len(k) > len(fieldPath) && k[0:len(fieldPath)] == fieldPath {
+			// +1 for the trailing .
+			unionValue = strings.Split(k[len(fieldPath)+1:], ".")[0]
+			break
+		}
+	}
+	tIndex := 0
+	if unionValue == "" {
+		tIndex = g.randomSource.Intn(len(schema.Types()))
+	} else {
+		for i, s := range schema.Types() {
+			if s.Type() == avro.Record && s.(*avro.RecordSchema).Name() == unionValue {
+				tIndex = i
+				break
+			}
+		}
+		fieldPath += "." + unionValue
+	}
 	return g.generate(schema.Types()[tIndex], fieldPath)
 }
 
