@@ -156,11 +156,11 @@ func TestHappyAvroGenUnion2(t *testing.T) {
 			Id:  1,
 		},
 		GenerationRules: map[string]string{
-			".testField": "stringGen",
+			".testField.testNestedField": "intGen",
 		},
 		// all generators are constants
 		Generators: map[string]string{
-			"stringGen": "{string}[12test34]{1}",
+			"intGen": "{int}[45678923]{1}",
 		}}, 0)
 	if err != nil {
 		t.FailNow()
@@ -170,7 +170,7 @@ func TestHappyAvroGenUnion2(t *testing.T) {
 	if err != nil {
 		t.FailNow()
 	}
-	if res.(map[string]interface{})["testField"] != "12test34" {
+	if res.(map[string]interface{})["testField"].(map[string]interface{})["testNestedField"] != "45678923" {
 		t.FailNow()
 	}
 }
@@ -208,6 +208,83 @@ func TestHappyAvroGenUnion3(t *testing.T) {
 		t.FailNow()
 	}
 	_, err = sut.generate(sut.getSchema(), "")
+	if err != nil {
+		t.FailNow()
+	}
+}
+
+func TestHappyAvroGenEnum(t *testing.T) {
+	testSchema := `
+	{
+		"type": "record",
+		"name": "Example",
+		"fields": [
+			{
+				"name": "testField",
+				"type": {
+					"type": "enum",
+					"name": "Suit",
+					"symbols" : ["SPADES", "HEARTS", "DIAMONDS", "CLUBS"]
+				}
+			}
+		]
+	}`
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		}}, 1)
+	if err != nil {
+		t.FailNow()
+	}
+	res, err := sut.generate(sut.getSchema(), "")
+	if err != nil {
+		t.FailNow()
+	}
+	if res.(map[string]interface{})["testField"] != "HEARTS" {
+		t.FailNow()
+	}
+}
+
+func TestHappyAvroGenEnum2(t *testing.T) {
+	testSchema := `
+	{
+		"type": "record",
+		"name": "Example",
+		"fields": [
+			{
+				"name": "testField",
+				"type": {
+					"type": "enum",
+					"name": "Suit",
+					"symbols" : ["SPADES", "HEARTS", "DIAMONDS", "CLUBS"]
+				}
+			}
+		]
+	}`
+	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+		Schema: configuration.SchemaConfiguration{
+			Raw: testSchema,
+			Id:  1,
+		},
+		GenerationRules: map[string]string{
+			".testField": "stringGen",
+		},
+		// all generators are constants
+		Generators: map[string]string{
+			"stringGen": "{string}[DIAMONDS|CLUBS]{1}",
+		}}, 0)
+	if err != nil {
+		t.FailNow()
+	}
+	res, err := sut.generate(sut.getSchema(), "")
+	if err != nil {
+		t.FailNow()
+	}
+	if res.(map[string]interface{})["testField"] != "DIAMONDS" {
+		t.FailNow()
+	}
+	_, _, err = sut.Generate()
 	if err != nil {
 		t.FailNow()
 	}

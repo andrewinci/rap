@@ -20,7 +20,6 @@ type AvroGen interface {
 	// return the avro record value and the key
 	Generate() ([]byte, string, error)
 	generate(schema avro.Schema, fieldPath string) (interface{}, error)
-	generateRecord(schema *avro.RecordSchema, parentSchema string) (map[string]interface{}, error)
 	getSchema() avro.Schema
 }
 
@@ -105,10 +104,15 @@ func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, er
 	if ok {
 		return typeGen()
 	}
-	// no customization found for the field
+	// no customization found for the union field, pick a random type in the union
 	if schema.Type() == avro.Union {
 		return g.generateUnionField(schema.(*avro.UnionSchema), fieldPath)
 	}
+	// no customization found for the enum field, pick a random symbol
+	if schema.Type() == avro.Enum {
+		return g.generateRandomEnum(schema.(*avro.EnumSchema))
+	}
+
 	return nil, fmt.Errorf("no generator found for type %s, path %s", string(schema.Type()), fieldPath)
 }
 
@@ -128,4 +132,9 @@ func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) 
 	// pick a random type among the union options
 	tIndex := g.randomSource.Intn(len(schema.Types()))
 	return g.generate(schema.Types()[tIndex], fieldPath)
+}
+
+func (g avroGen) generateRandomEnum(schema *avro.EnumSchema) (interface{}, error) {
+	symbolIndex := g.randomSource.Intn(len(schema.Symbols()))
+	return schema.Symbols()[symbolIndex], nil
 }
