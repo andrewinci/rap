@@ -96,3 +96,29 @@ func TestHappyPath2AvroGen(t *testing.T) {
 		t.Error("the record keys should be identical")
 	}
 }
+
+// func TestHappyAvroGen(t *testing.T) {
+// 	testSchema := `
+// 	{
+// 		"type" : "record",
+// 		"name" : "Example",
+// 		"fields" : [
+// 			{ "name": "testField", "type": ["boolean", "null"] }
+// 		]
+// 	 }
+// 	`
+// 	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
+// 		Schema: configuration.SchemaConfiguration{
+// 			Raw: testSchema,
+// 			Id:  1,
+// 		}}, 0)
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	rawRes, err := sut.generate(sut.getSchema(), "")
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	res := rawRes.(map[string]interface{})
+// 	fmt.Println(res)
+// }

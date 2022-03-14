@@ -3,15 +3,17 @@ package avrogen
 import (
 	"encoding/binary"
 	"fmt"
+	"math/rand"
 
 	c "github.com/andrewinci/rap/configuration"
 	"github.com/hamba/avro"
 )
 
 type avroGen struct {
-	schema          avro.Schema
-	schemaId        int
-	generatorsCache map[string]func() (interface{}, error)
+	schema         avro.Schema
+	schemaId       int
+	generatorsRepo map[string]fieldGen
+	randomSource   *rand.Rand
 }
 
 type AvroGen interface {
@@ -19,6 +21,7 @@ type AvroGen interface {
 	Generate() ([]byte, string, error)
 	generate(schema avro.Schema, fieldPath string) (interface{}, error)
 	generateRecord(schema *avro.RecordSchema, parentSchema string) (map[string]interface{}, error)
+	getSchema() avro.Schema
 }
 
 func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
@@ -27,21 +30,21 @@ func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	generatorsCache := map[string]func() (interface{}, error){
-		"key":                defaultKeyGen(seed),
-		string(avro.Boolean): defaultBooleanFieldGen(seed),
-		string(avro.Int):     defaultIntFieldGen(seed),
-		string(avro.Long):    defaultLongFieldGen(seed),
-		string(avro.Float):   defaultFloatFieldGen(seed),
-		string(avro.Double):  defaultDoubleFieldGen(seed),
-		string(avro.String):  defaultStringFieldGen(seed),
+	randomSource := rand.New(rand.NewSource(seed))
+	generatorsRepo := map[string]fieldGen{
+		"key":                defaultKeyGen(randomSource),
+		string(avro.Boolean): defaultBooleanFieldGen(randomSource),
+		string(avro.Int):     defaultIntFieldGen(randomSource),
+		string(avro.Long):    defaultLongFieldGen(randomSource),
+		string(avro.Float):   defaultFloatFieldGen(randomSource),
+		string(avro.Double):  defaultDoubleFieldGen(randomSource),
+		string(avro.String):  defaultStringFieldGen(randomSource),
 	}
 
-	fieldGenerators := map[string]func() (interface{}, error){}
+	fieldGenerators := map[string]fieldGen{}
 
 	for k, v := range config.Generators {
-		fieldGen := newFieldGen(v, seed)
+		fieldGen := newFieldGen(v, randomSource)
 		fieldGenerators[k] = func() (interface{}, error) {
 			res, err := fieldGen()
 			return res, err
@@ -53,14 +56,19 @@ func NewAvroGen(config c.AvroGenConfiguration, seed int64) (AvroGen, error) {
 		if !ok {
 			return nil, fmt.Errorf("missing generator %s for the rule %s", v, k)
 		}
-		generatorsCache[k] = g
+		generatorsRepo[k] = g
 	}
 
 	return avroGen{
-		schema:          schema,
-		schemaId:        config.Schema.Id,
-		generatorsCache: generatorsCache,
+		schema:         schema,
+		schemaId:       config.Schema.Id,
+		generatorsRepo: generatorsRepo,
+		randomSource:   randomSource,
 	}, nil
+}
+
+func (g avroGen) getSchema() avro.Schema {
+	return g.schema
 }
 
 func (g avroGen) Generate() ([]byte, string, error) {
@@ -68,7 +76,7 @@ func (g avroGen) Generate() ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	key, err := g.generatorsCache["key"]()
+	key, err := g.generatorsRepo["key"]()
 	if err != nil {
 		return nil, "", fmt.Errorf("unable to generate the key, %s", err.Error())
 	}
@@ -88,13 +96,17 @@ func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, er
 		recordSchema := schema.(*avro.RecordSchema)
 		return g.generateRecord(recordSchema, fieldPath)
 	}
-	fieldGen, ok := g.generatorsCache[fieldPath]
+	fieldGen, ok := g.generatorsRepo[fieldPath]
 	if ok {
 		return fieldGen()
 	}
-	typeGen, ok := g.generatorsCache[string(schema.Type())]
+	typeGen, ok := g.generatorsRepo[string(schema.Type())]
 	if ok {
 		return typeGen()
+	}
+	// no customization found for the field
+	if schema.Type() == avro.Union {
+		return g.generateUnionField(schema.(*avro.UnionSchema), fieldPath)
 	}
 	return nil, fmt.Errorf("no generator found for type %s, path %s", string(schema.Type()), fieldPath)
 }
@@ -109,4 +121,11 @@ func (g avroGen) generateRecord(schema *avro.RecordSchema, parentSchema string) 
 		res[f.Name()] = val
 	}
 	return res, nil
+}
+
+func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) (interface{}, error) {
+	// pick a random type among the union options
+	schema.Types()
+	//todo
+	return nil, fmt.Errorf("no generator found for type %s, path %s", string(schema.Type()), fieldPath)
 }

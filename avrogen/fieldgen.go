@@ -11,12 +11,11 @@ import (
 // generic data generator
 type fieldGen func() (interface{}, error)
 
-func newFieldGen(rawPattern string, seed int64) fieldGen {
+func newFieldGen(rawPattern string, random *rand.Rand) fieldGen {
 	pattern := parsePattern(rawPattern)
 	if pattern == nil {
 		return nil
 	}
-	random := rand.New(rand.NewSource(seed))
 	return func() (interface{}, error) {
 		var res string
 		for _, c := range pattern.content {
@@ -53,16 +52,18 @@ func newFieldGen(rawPattern string, seed int64) fieldGen {
 	}
 }
 
-func defaultKeyGen(seed int64) fieldGen         { return newFieldGen("{string}[uuid()]{1}", seed) }
-func defaultIntFieldGen(seed int64) fieldGen    { return newFieldGen("{int}[0-9]{4}", seed) }
-func defaultLongFieldGen(seed int64) fieldGen   { return newFieldGen("{long}[0-9]{7}", seed) }
-func defaultStringFieldGen(seed int64) fieldGen { return newFieldGen("{string}[a-Z|0-9]{10}", seed) }
-func defaultFloatFieldGen(seed int64) fieldGen {
-	return newFieldGen("{float}[0]{1}[.]{1}[0-9]{3}", seed)
+func defaultKeyGen(random *rand.Rand) fieldGen       { return newFieldGen("{string}[uuid()]{1}", random) }
+func defaultIntFieldGen(random *rand.Rand) fieldGen  { return newFieldGen("{int}[0-9]{4}", random) }
+func defaultLongFieldGen(random *rand.Rand) fieldGen { return newFieldGen("{long}[0-9]{7}", random) }
+func defaultStringFieldGen(random *rand.Rand) fieldGen {
+	return newFieldGen("{string}[a-Z|0-9]{10}", random)
 }
-func defaultDoubleFieldGen(seed int64) fieldGen {
-	return newFieldGen("{double}[0]{1}[.]{1}[0-9]{3}", seed)
+func defaultFloatFieldGen(random *rand.Rand) fieldGen {
+	return newFieldGen("{float}[0]{1}[.]{1}[0-9]{3}", random)
 }
-func defaultBooleanFieldGen(seed int64) fieldGen {
-	return newFieldGen("{boolean}[true|false]{1}", seed)
+func defaultDoubleFieldGen(random *rand.Rand) fieldGen {
+	return newFieldGen("{double}[0]{1}[.]{1}[0-9]{3}", random)
+}
+func defaultBooleanFieldGen(random *rand.Rand) fieldGen {
+	return newFieldGen("{boolean}[true|false]{1}", random)
 }

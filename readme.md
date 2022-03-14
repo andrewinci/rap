@@ -22,21 +22,20 @@ The quickest way to try RAP is to run it against a local single node Kafka clust
 - Start a local cluster with the RedPanda image
   ```bash
   docker run -d --pull=always --name=redpanda-1 --rm \
-  -p 9092:9092 \
-  -p 9644:9644 \
-  docker.vectorized.io/vectorized/redpanda:latest \
-  redpanda start \
-  --overprovisioned \
-  --smp 1  \
-  --memory 1G \
-  --reserve-memory 0M \
-  --node-id 0 \
-  --check=false
+    -p 9092:9092 \
+    -p 9644:9644 \
+    docker.vectorized.io/vectorized/redpanda:latest \
+    redpanda start \
+    --overprovisioned \
+    --smp 1  \
+    --memory 1G \
+    --reserve-memory 0M \
+    --node-id 0 \
+    --check=false
   ```
 - Create the test topic with
   ```bash
-  docker exec -it redpanda-1 \
-  rpk topic create test --brokers=localhost:9092
+  docker exec -it redpanda-1 rpk topic create test --brokers=localhost:9092
   ```
 - Generate 2M records with RAP
   ```bash
