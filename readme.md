@@ -175,7 +175,7 @@ The field `count` tells the generator how many times the generation should be pe
 
 **Note** for Avro enums use the `{string}` type generator making sure that the output matches one of the symbols.
 
-### Examples
+#### Examples
 
 **Generate a constant value**  
 `{string}[test]{1}` will always generate the constant value test
