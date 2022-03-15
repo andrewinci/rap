@@ -97,6 +97,9 @@ func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, er
 		recordSchema := schema.(*avro.RecordSchema)
 		return g.generateRecord(recordSchema, fieldPath)
 	}
+	if schema.Type() == avro.Array {
+		return g.generateRandomArray(schema.(*avro.ArraySchema), fieldPath)
+	}
 	fieldGen, ok := g.generatorsRepo[fieldPath]
 	if ok {
 		return fieldGen()
@@ -112,9 +115,6 @@ func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, er
 	// no customization found for the enum field, pick a random symbol
 	if schema.Type() == avro.Enum {
 		return g.generateRandomEnum(schema.(*avro.EnumSchema))
-	}
-	if schema.Type() == avro.Array {
-		return g.generateRandomArray(schema.(*avro.ArraySchema), fieldPath)
 	}
 
 	return nil, fmt.Errorf("no generator found for type %s, path %s", string(schema.Type()), fieldPath)

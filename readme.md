@@ -14,7 +14,7 @@ RAP is a fast Avro generator + Kafka producer that allows to fully control the d
 The quickest way to try RAP is to run it against a local single node Kafka cluster.
 - Download the latest release of RAP and the example config file
   ```bash
-  RAP_VERSION=0.1.0 bash -c 'curl -Lo rap_${RAP_VERSION}.tar.gz \
+  RAP_VERSION=0.1.1 bash -c 'curl -Lo rap_${RAP_VERSION}.tar.gz \
   https://github.com/andrewinci/rap/releases/download/v${RAP_VERSION}/rap_${RAP_VERSION}_$(uname)_$(uname -m).tar.gz && \
   tar xvf rap_${RAP_VERSION}.tar.gz'
   curl -o config.yaml https://raw.githubusercontent.com/andrewinci/rap/main/example/local_cluster.yaml
@@ -32,10 +32,6 @@ The quickest way to try RAP is to run it against a local single node Kafka clust
     --reserve-memory 0M \
     --node-id 0 \
     --check=false
-  ```
-- Create the test topic with
-  ```bash
-  docker exec -it redpanda-1 rpk topic create test --brokers=localhost:9092
   ```
 - Generate 2M records with RAP
   ```bash
