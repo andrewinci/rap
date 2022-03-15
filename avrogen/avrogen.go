@@ -113,14 +113,17 @@ func (g avroGen) generate(schema avro.Schema, fieldPath string) (interface{}, er
 	if schema.Type() == avro.Enum {
 		return g.generateRandomEnum(schema.(*avro.EnumSchema))
 	}
+	if schema.Type() == avro.Array {
+		return g.generateRandomArray(schema.(*avro.ArraySchema), fieldPath)
+	}
 
 	return nil, fmt.Errorf("no generator found for type %s, path %s", string(schema.Type()), fieldPath)
 }
 
-func (g avroGen) generateRecord(schema *avro.RecordSchema, parentSchema string) (map[string]interface{}, error) {
+func (g avroGen) generateRecord(schema *avro.RecordSchema, fieldPath string) (map[string]interface{}, error) {
 	res := map[string]interface{}{}
 	for _, f := range schema.Fields() {
-		val, err := g.generate(f.Type(), parentSchema+"."+f.Name())
+		val, err := g.generate(f.Type(), fieldPath+"."+f.Name())
 		if err != nil {
 			return nil, err
 		}
@@ -175,4 +178,28 @@ func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) 
 func (g avroGen) generateRandomEnum(schema *avro.EnumSchema) (interface{}, error) {
 	symbolIndex := g.randomSource.Intn(len(schema.Symbols()))
 	return schema.Symbols()[symbolIndex], nil
+}
+
+func (g avroGen) generateRandomArray(schema *avro.ArraySchema, fieldPath string) (interface{}, error) {
+	// check if a len generator is specified
+	randomLen := g.randomSource.Intn(10)
+	gen, ok := g.generatorsRepo[fieldPath+".len()"]
+	if ok {
+		tmp, err := gen()
+		if err != nil {
+			return nil, err
+		}
+		// todo: make sure the len() gen is int
+		randomLen = tmp.(int)
+	}
+
+	var array []interface{}
+	for i := 0; i < randomLen; i++ {
+		res, err := g.generate(schema.Items(), fieldPath)
+		if err != nil {
+			return nil, err
+		}
+		array = append(array, res)
+	}
+	return array, nil
 }

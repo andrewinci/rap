@@ -116,6 +116,7 @@ To describe a path through an **avro union type**, it is necessary to specify wh
 For example, in the following schema the path to `f2` is `.f1.Nested.f2`.
 This path also tell to the avroGen to always pick the `Nested` side of the Union, therefore `f1` will never be 
 set as a string value.
+
 ```json
 {
 		"type": "record",
@@ -131,6 +132,34 @@ set as a string value.
 							{ "name": "f2", "type": "int"}
 						...
 ```
+
+To describe a path to an element of an array follow the same rules as nested object.
+
+For example, in the schema below the path to  `stringField` is simply `.testField.stringField`.
+```json
+	{
+		"type": "record",
+		"fields": [
+			{
+				"name": "testField",
+				"type": {
+					"type": "array",
+					"items" : {
+						"type" : "record",
+						"name" : "ArrayObj",
+						"fields" : [
+							{ "name": "stringField", "type": "string" }
+```
+For array, it is possible to specify the length of the generated arrays postponing `.len()` to the array path.  
+
+For example, in the schema above, we could use the following generator rule to restrict the len of the `testField` to one of `0,1,2`.
+```yaml
+generationRules:
+  .testField.len(): lenGen
+generators:
+  lenGen: "{int}[0|1|2]{1}"
+```
+
 
 ### Generators syntax
 To customize the generation of the fields it is possible to provide a pattern.
@@ -178,7 +207,6 @@ Run tests with `go test ./...`
 
 ## TODO:
 - [ ] support logical types in field gen
-- [ ] support arrays
 - [ ] support mtls authentication
 - [ ] support split yaml file
 - [ ] docker image and helm chart
