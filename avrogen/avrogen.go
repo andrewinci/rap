@@ -130,7 +130,9 @@ func (g avroGen) generateRecord(schema *avro.RecordSchema, parentSchema string) 
 }
 
 func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) (interface{}, error) {
-	// pick a random type among the union options
+
+	// check if there is a generator for the object
+	// nested in the union
 	unionValue := ""
 	for k := range g.generatorsRepo {
 		if len(k) > len(fieldPath) && k[0:len(fieldPath)] == fieldPath {
@@ -141,6 +143,7 @@ func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) 
 	}
 	tIndex := 0
 	if unionValue == "" {
+		// pick a random type among the union options
 		tIndex = g.randomSource.Intn(len(schema.Types()))
 	} else {
 		for i, s := range schema.Types() {
@@ -151,7 +154,22 @@ func (g avroGen) generateUnionField(schema *avro.UnionSchema, fieldPath string) 
 		}
 		fieldPath += "." + unionValue
 	}
-	return g.generate(schema.Types()[tIndex], fieldPath)
+
+	typeOption := schema.Types()[tIndex]
+	res, err := g.generate(typeOption, fieldPath)
+	// wrap the result into a map with key the type name
+	// same as the avro json syntax
+	if typeOption.Type() == avro.Record {
+		return map[string]interface{}{
+			typeOption.(*avro.RecordSchema).Name(): res,
+		}, err
+	} else if typeOption.Type() == avro.Enum {
+		return map[string]interface{}{
+			typeOption.(*avro.EnumSchema).Name(): res,
+		}, err
+	} else {
+		return res, err
+	}
 }
 
 func (g avroGen) generateRandomEnum(schema *avro.EnumSchema) (interface{}, error) {

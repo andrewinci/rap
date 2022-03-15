@@ -103,8 +103,8 @@ The **key** can be:
 - the value `key` to specify how to generate the key of the Kafka record
 
 The priority of the generators is:
-- field specific generator from config
-- type specific generator from config
+- field path generator from config
+- avro type generator from config
 - default type generator
 
 #### Schema field path
@@ -148,6 +148,8 @@ Where `type` can be one of the following avro type:
 - a combination of intervals and constants: `a-z | 0-9 | test`
 
 The field `count` tells the generator how many times the generation should be performed accordingly to the `content-restriction`. The result of each generation is concatenated.
+
+**Note** for Avro enums use the `{string}` type generator making sure that the output matches one of the symbols.
 
 ### Examples
 

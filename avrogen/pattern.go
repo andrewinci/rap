@@ -88,6 +88,7 @@ func parsePattern(p string) *pattern {
 // parse the pattern and returns the type and the content
 func parsePatternType(p string) (string, string, bool) {
 	types := strings.Join([]string{
+		string(avro.Null),
 		string(avro.Boolean),
 		string(avro.Int),
 		string(avro.Long),

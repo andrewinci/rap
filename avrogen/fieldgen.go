@@ -17,6 +17,9 @@ func newFieldGen(rawPattern string, random *rand.Rand) fieldGen {
 		return nil
 	}
 	return func() (interface{}, error) {
+		if pattern.type_ == string(avro.Null) {
+			return nil, nil
+		}
 		var res string
 		for _, c := range pattern.content {
 			for i := 0; i < c.count; i++ {

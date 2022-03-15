@@ -44,6 +44,10 @@ func TestHappyPathAvroGen(t *testing.T) {
 	if string(key1) == string(key2) {
 		t.Error("generated 2 identical keys")
 	}
+	_, _, err = sut.Generate()
+	if err != nil {
+		t.FailNow()
+	}
 }
 
 func TestHappyPath2AvroGen(t *testing.T) {
@@ -96,118 +100,7 @@ func TestHappyPath2AvroGen(t *testing.T) {
 	if key1 != key2 {
 		t.Error("the record keys should be identical")
 	}
-}
-
-func TestHappyAvroGenUnion(t *testing.T) {
-	testSchema := `
-	{
-		"type" : "record",
-		"name" : "Example",
-		"fields" : [
-			{ "name": "testField", "type": ["boolean", "null"] }
-		]
-	 }
-	`
-	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
-		Schema: configuration.SchemaConfiguration{
-			Raw: testSchema,
-			Id:  1,
-		}}, 0)
-	if err != nil {
-		t.FailNow()
-	}
-	rawRes, err := sut.generate(sut.getSchema(), "")
-	if err != nil {
-		t.FailNow()
-	}
-	res := rawRes.(map[string]interface{})["testField"]
-	if res != true {
-		t.FailNow()
-	}
-}
-
-func TestHappyAvroGenUnion2(t *testing.T) {
-	testSchema := `
-	{
-		"type": "record",
-		"name": "Example",
-		"fields": [
-			{
-				"name": "testField",
-				"type": [
-					"string",
-					{
-						"type": "record",
-						"name": "Nested",
-						"fields": [
-							{
-								"name": "testNestedField",
-								"type": ["int", "float"]
-							}
-						]
-					}
-				]
-			}
-		]
-	}`
-	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
-		Schema: configuration.SchemaConfiguration{
-			Raw: testSchema,
-			Id:  1,
-		},
-		GenerationRules: map[string]string{
-			".testField.Nested.testNestedField": "intGen",
-		},
-		// all generators are constants
-		Generators: map[string]string{
-			"intGen": "{int}[45678923]{1}",
-		}}, 0)
-	if err != nil {
-		t.FailNow()
-	}
-
-	res, err := sut.generate(sut.getSchema(), "")
-	if err != nil {
-		t.FailNow()
-	}
-	if res.(map[string]interface{})["testField"].(map[string]interface{})["testNestedField"] != 45678923 {
-		t.FailNow()
-	}
-}
-
-func TestHappyAvroGenUnion3(t *testing.T) {
-	testSchema := `
-	{
-		"type": "record",
-		"name": "Example",
-		"fields": [
-			{
-				"name": "testField",
-				"type": [
-					"boolean",
-					{
-						"type": "record",
-						"name": "Nested",
-						"fields": [
-							{
-								"name": "testNestedField",
-								"type": ["int", "float"]
-							}
-						]
-					}
-				]
-			}
-		]
-	}`
-	sut, err := NewAvroGen(configuration.AvroGenConfiguration{
-		Schema: configuration.SchemaConfiguration{
-			Raw: testSchema,
-			Id:  1,
-		}}, 1)
-	if err != nil {
-		t.FailNow()
-	}
-	_, err = sut.generate(sut.getSchema(), "")
+	_, _, err = sut.Generate()
 	if err != nil {
 		t.FailNow()
 	}
@@ -242,6 +135,10 @@ func TestHappyAvroGenEnum(t *testing.T) {
 		t.FailNow()
 	}
 	if res.(map[string]interface{})["testField"] != "HEARTS" {
+		t.FailNow()
+	}
+	_, _, err = sut.Generate()
+	if err != nil {
 		t.FailNow()
 	}
 }
