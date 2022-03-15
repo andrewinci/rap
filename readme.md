@@ -113,42 +113,41 @@ For example, `.f1.f2` identify the field `f2` nested in the record at field `f1`
 
 To describe a path through an **avro union type**, it is necessary to specify which type of the Union we want to follow.
 
-For example, in the following schema the path to `f2` is `.f1.Nested.f2`.
+For example, in the following schema fragment the path to `f2` is `.f1.Nested.f2`.
 This path also tell to the avroGen to always pick the `Nested` side of the Union, therefore `f1` will never be 
 set as a string value.
 
 ```json
 {
-		"type": "record",
-		"fields": [
-			{
-				"name": "f1",
-				"type": [
-					"string",
-					{
-						"type": "record",
-						"name": "Nested",
-						"fields": [
-							{ "name": "f2", "type": "int"}
-						...
+  "type": "record",
+  "fields": [
+    {
+      "name": "f1",
+      "type": [
+        "string",
+        {
+          "type": "record",
+          "name": "Nested",
+          "fields": [
+            { "name": "f2", "type": "int"}
 ```
 
 To describe a path to an element of an array follow the same rules as nested object.
 
-For example, in the schema below the path to  `stringField` is simply `.testField.stringField`.
+For example, in the schema fragment below the path to  `stringField` is simply `.testField.stringField`.
 ```json
-	{
-		"type": "record",
-		"fields": [
-			{
-				"name": "testField",
-				"type": {
-					"type": "array",
-					"items" : {
-						"type" : "record",
-						"name" : "ArrayObj",
-						"fields" : [
-							{ "name": "stringField", "type": "string" }
+{
+  "type": "record",
+  "fields": [
+    {
+      "name": "testField",
+      "type": {
+        "type": "array",
+        "items" : {
+          "type" : "record",
+          "name" : "ArrayObj",
+          "fields" : [
+            { "name": "stringField", "type": "string" }
 ```
 For array, it is possible to specify the length of the generated arrays postponing `.len()` to the array path.  
 
